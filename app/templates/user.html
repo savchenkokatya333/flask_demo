@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block app_content %}
+    <table>
+        <tr valign="top">
+            <td><img src="{{ user.avatar(128) }}"></td>
+            <td>
+                <h1>用户: {{ user.userName }}</h1>
+                {% if user.about_me %}<p>介绍:{{ user.about_me }}</p>{% endif %}
+                {% if user.last_seen %}<p>上次在线: {{ moment(user.last_seen).format('LLL') }}</p>{% endif %}
+                <p>收到了{{ user.followers.count() }}个关注</p>
+                <p>关注了{{ user.followed.count() }} 个用户</p>
+                {% if user == current_user %}
+                    <p><a href="{{ url_for('edit_profile') }}">修改</a></p>
+                {% elif not current_user.is_following(user) %}
+                    <p><a href="{{ url_for('follow', userName=user.userName) }}">关注</a></p>
+                {% else %}
+                    <p><a href="{{ url_for('unfollow', userName=user.userName) }}">取关</a></p>
+                {% endif %}
+            </td>
+        </tr>
+    </table>
+    <hr>
+    <h3>文章列表:</h3>
+    {% for post in posts %}
+        {% include '_post.html' %}
+    {% endfor %}
+    <nav aria-label="...">
+        <ul class="pager">
+            <li class="previous{% if not prev_url %} disabled{% endif %}">
+                <a href="{{ prev_url or '#' }}">
+                    <span aria-hidden="true">&larr;</span>下一页
+                </a>
+            </li>
+            <li class="next{% if not next_url %} disabled{% endif %}">
+                <a href="{{ next_url or '#' }}">
+                    上一页<span aria-hidden="true">&rarr;</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+{% endblock %}
